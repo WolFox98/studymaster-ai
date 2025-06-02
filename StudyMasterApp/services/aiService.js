@@ -3,34 +3,95 @@
  * Implements lightweight local algorithms for privacy and offline use.
  */
 
-export const generateStudyContent = async (materialText) => {
+const stopwords = new Set([
+  'e', 'il', 'la', 'lo', 'i', 'gli', 'le', 'un', 'una', 'in', 'a', 'da', 'di', 'che', 'per', 'con', 'su', 'non', 'si', 'al', 'del', 'della', 'dello', 'dei', 'degli', 'delle', 'ma', 'o', 'se', 'come', 'più', 'tra', 'fra'
+]);
+
+const tokenize = (text) => {
+  return text
+    .toLowerCase()
+    .replace(/[^a-zàèéìòù\s]/g, '')
+    .split(/\s+/)
+    .filter(word => word.length > 2 && !stopwords.has(word));
+};
+
+const computeTF = (tokens) => {
+  const tf = {};
+  tokens.forEach(token => {
+    tf[token] = (tf[token] || 0) + 1;
+  });
+  const len = tokens.length;
+  Object.keys(tf).forEach(key => {
+    tf[key] = tf[key] / len;
+  });
+  return tf;
+};
+
+const computeIDF = (documents) => {
+  const idf = {};
+  const N = documents.length;
+  documents.forEach(doc => {
+    const seen = new Set();
+    const tokens = tokenize(doc);
+    tokens.forEach(token => {
+      if (!seen.has(token)) {
+        idf[token] = (idf[token] || 0) + 1;
+        seen.add(token);
+      }
+    });
+  });
+  Object.keys(idf).forEach(key => {
+    idf[key] = Math.log(N / (idf[key] || 1));
+  });
+  return idf;
+};
+
+const computeTFIDF = (tf, idf) => {
+  const tfidf = {};
+  Object.keys(tf).forEach(key => {
+    tfidf[key] = tf[key] * (idf[key] || 0);
+  });
+  return tfidf;
+};
+
+export const generateStudyContent = async (materialText, allMaterialsTexts = []) => {
   // Simulate analysis delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Simple keyword extraction (mock)
-  const keywords = materialText
-    .split(/\W+/)
-    .filter(word => word.length > 4)
-    .slice(0, 10);
+  // Compute IDF from all materials texts for better keyword extraction
+  const idf = computeIDF(allMaterialsTexts.length > 0 ? allMaterialsTexts : [materialText]);
 
-  // Generate mock summary
-  const summary = `Questo è un riassunto sintetico del materiale con parole chiave: ${keywords.join(', ')}.`;
+  // Tokenize and compute TF for current material
+  const tokens = tokenize(materialText);
+  const tf = computeTF(tokens);
 
-  // Generate mock concepts
+  // Compute TF-IDF scores
+  const tfidf = computeTFIDF(tf, idf);
+
+  // Sort keywords by TF-IDF score
+  const keywords = Object.entries(tfidf)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(entry => entry[0]);
+
+  // Generate summary (simple concatenation of top keywords)
+  const summary = `Riassunto sintetico con parole chiave: ${keywords.join(', ')}.`;
+
+  // Generate concepts with simple descriptions
   const concepts = keywords.map(word => ({
     name: word,
     description: `Descrizione breve per il concetto ${word}.`
   }));
 
-  // Generate mock exercises
-  const exercises = keywords.map((word, index) => ({
+  // Generate exercises with simple questions and options
+  const exercises = keywords.slice(0, 5).map((word, index) => ({
     question: `Domanda sull'argomento ${word}?`,
     options: ['Opzione A', 'Opzione B', 'Opzione C', 'Opzione D'],
     correct: index % 4,
     explanation: `Spiegazione della risposta corretta per ${word}.`
-  })).slice(0, 5);
+  }));
 
-  // Generate mock questions
+  // Generate open questions
   const questions = [
     { question: 'Spiega il concetto principale del materiale.', type: 'open' },
     { question: 'Quali sono gli aspetti più importanti?', type: 'open' }
