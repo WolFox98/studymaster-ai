@@ -6,81 +6,95 @@ Built by https://www.blackbox.ai
 ```markdown
 # StudyMaster AI
 
+StudyMaster AI is an intelligent learning assistant designed to enhance your study sessions through guided learning and personalized analytics. Utilizing React, StudyMaster provides a robust interface for managing study goals, tracking progress, and leveraging AI to generate study materials from PDFs.
+
 ## Project Overview
-StudyMaster AI is a comprehensive learning assistant developed using React. This application leverages artificial intelligence to enhance the studying experience by providing features such as guided study sessions, daily goals tracking, and analytics on study progress. The app is designed to help users efficiently organize their study materials and focus on areas that need improvement.
+
+StudyMaster is built to assist users in their learning journeys by:
+- Setting daily study goals
+- Tracking study sessions
+- Analyzing performance through detailed statistics
+- Generating summaries and exercises from provided PDF materials
 
 ## Installation
-To install and run the StudyMaster AI application locally, follow these steps:
+
+To set up the StudyMaster application on your local machine, follow these steps:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/studymaster-ai.git
-   cd studymaster-ai
+   git clone <repository-url>
+   cd studymaster
    ```
 
-2. **Install the required dependencies:**
-   Ensure you have Node.js installed. Then run:
+2. **Install dependencies:**
+   Make sure you have Node.js installed. Then run:
    ```bash
    npm install
    ```
 
-3. **Start the application:**
-   You can launch the app in development mode:
+3. **Start the development server:**
+   After the dependencies are installed, start the application:
    ```bash
    npm start
    ```
 
-4. **Connect to Ollama:**
-   Make sure Ollama is installed and running to utilize the AI features. You can follow the [Ollama installation guide](https://ollama.com) for setup and usage instructions.
+   This will launch the application at `http://localhost:3000`.
 
 ## Usage
-Upon launching the application, users can navigate through different sections:
-- **Dashboard:** Track user stats, including level, XP, study streak, and progress on daily goals.
-- **Guided Study:** Start focused study sessions utilizing various study techniques like scanning and recall.
-- **Analytics:** Receive insights on areas of improvement, strengths, and AI-generated study recommendations.
 
-You can interact with the goals and study phases to manage your learning experience effectively.
+Upon opening the application, users can navigate between three main sections:
+- **Dashboard:** Displays user statistics and daily goals.
+- **Guided Study:** Allows users to engage in various study phases.
+- **AI Analytics:** Provides analytical insights into user performance and automatic content generation from uploaded PDFs.
 
-## Features
-- User statistics tracking with XP and levels.
-- Daily goal management with progress indicators.
-- AI-assisted recommendations based on individual study data.
-- Interactive study sessions utilizing diverse methodologies.
-- Analytics section for personalized insights and updates on study topics.
+### Features
+- **User Management:** Track user levels, experience points, streaks, and achievements.
+- **Daily Goals:** Set and monitor daily study tasks.
+- **Guided Study Sessions:** Follow structured study phases (scanning, mapping, Feynman technique, recall, testing).
+- **Analytics:** Get recommendations based on AI analysis of study materials.
+- **PDF Upload:** Upload and process PDF files for automatic study content generation.
 
 ## Dependencies
-Here's a list of essential dependencies, as defined in `package.json`:
-- `react`: A JavaScript library for building user interfaces.
-- `lucide-react`: A React icon library for UI elements.
 
-Make sure to verify and install any additional dependencies required by your environment.
+Here are the primary dependencies utilized in this project, as found in the `package.json` file:
+
+- `react`: ^17.0.2
+- `react-dom`: ^17.0.2
+- `lucide-react`: ^0.10.0
+- `pdf.js`: ^3.11.174
+- `marked`: ^9.1.2
+
+Make sure to verify the library versions when you set up your environment.
 
 ## Project Structure
-The project comprises the following key files and directories:
-```
+
+The project structure is organized as follows:
+
+```plaintext
 .
-├── prototipo.html                   # Main application file (React component)
-├── Prototipo2.html                 # Secondary HTML file with additional UI components
-├── package.json                     # Project dependencies and configuration
-├── public/                          # Public resources
-│   └── index.html                  # Entry point for the React application
-├── src/                             # Source code directory
-│   ├── index.js                     # Entry file for React app
-│   └── components/                  # Custom React components
-│       ├── DashboardSection.js      # Dashboard component
-│       ├── StudySection.js          # Guided study component
-│       └── AnalyticsSection.js      # Analytics and insights component
-└── README.md                        # Project documentation
+├── prototipo.html  # Main HTML file for the React app
+├── Prototipo2.html # A secondary prototype HTML with different features
+├── src/
+│   ├── components/  # React components for different sections of the app
+│   │   ├── DashboardSection.js   # Component for dashboard
+│   │   ├── StudySection.js        # Component for guided study
+│   │   ├── AnalyticsSection.js     # Component for AI analysis
+│   ├── App.js       # Main application component
+│   └── ...
+├── package.json     # Project metadata and dependencies
+├── README.md        # Project description and usage instructions
+└── ...
 ```
 
-### Note
-Make sure to explore the components and submodules within the `src/components` directory for a more in-depth understanding of the architecture and functionality of the StudyMaster AI application.
+This project is designed for educational purposes, aiming to improve learning strategies using AI and interactive features.
 
 ## Contributing
-Contributions are welcome! If you'd like to contribute to the project, please open an issue or submit a pull request.
 
-## Acknowledgments
-This project utilizes [Ollama](https://ollama.com) for AI-based functionalities and various libraries to create an interactive UI. Thank you to the open-source community for their invaluable contributions!
+If you would like to contribute to StudyMaster, feel free to submit issues and pull requests. Make sure to follow the contribution guidelines specified in the repository.
 
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for more details.
 ```
-Feel free to customize the content, especially links and project specifics, to fit your actual repository and instructions.
+
+This README file comprehensively covers the scope of the StudyMaster AI project, including installation instructions, usage details, features, dependencies, and project structure.
