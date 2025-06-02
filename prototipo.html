@@ -1,0 +1,461 @@
+import React, { useState, useEffect } from 'react';
+import { Brain, Trophy, Target, Zap, Star, BookOpen, Timer, Users, Award, TrendingUp, Eye, CheckCircle, XCircle, BarChart3, Flame } from 'lucide-react';
+
+const StudyMasterApp = () => {
+  const [currentSection, setCurrentSection] = useState('dashboard');
+  const [userStats, setUserStats] = useState({
+    level: 12,
+    xp: 2847,
+    xpToNext: 3200,
+    streak: 15,
+    totalStudyTime: 127,
+    rank: 'Neural Scholar',
+    badges: ['Speed Learner', 'Consistent Warrior', 'Deep Thinker']
+  });
+
+  const [dailyGoals, setDailyGoals] = useState([
+    { id: 1, title: 'Complete Feynman Technique', progress: 80, target: 100, xp: 50, completed: false },
+    { id: 2, title: 'Active Recall Sessions', progress: 60, target: 100, xp: 40, completed: false },
+    { id: 3, title: 'Practice Problems', progress: 100, target: 100, xp: 60, completed: true },
+    { id: 4, title: 'Study Streak', progress: 100, target: 100, xp: 30, completed: true }
+  ]);
+
+  const [currentTopic, setCurrentTopic] = useState({
+    subject: 'Analisi Matematica 1',
+    topic: 'Derivate',
+    difficulty: 'Intermedio',
+    masteryLevel: 65,
+    weakPoints: ['Regola della catena', 'Derivate implicite', 'Ottimizzazione'],
+    strongPoints: ['Definizione di derivata', 'Regole base', 'Calcolo di limiti']
+  });
+
+  const [studySession, setStudySession] = useState({
+    phase: 'scanning', // scanning, mapping, feynman, recall, testing
+    timeLeft: 600, // 10 minutes
+    currentXP: 0,
+    streak: 0,
+    isActive: false
+  });
+
+  const ranks = [
+    { name: 'Knowledge Seeker', min: 0, color: 'text-gray-600' },
+    { name: 'Info Gatherer', min: 500, color: 'text-green-600' },
+    { name: 'Pattern Finder', min: 1200, color: 'text-blue-600' },
+    { name: 'Concept Master', min: 2500, color: 'text-purple-600' },
+    { name: 'Neural Scholar', min: 4000, color: 'text-orange-600' },
+    { name: 'Wisdom Keeper', min: 7000, color: 'text-red-600' },
+    { name: 'Learning Legend', min: 12000, color: 'text-yellow-600' }
+  ];
+
+  const studyPhases = {
+    scanning: { name: 'Scansione Veloce', icon: <Eye className="w-5 h-5" />, color: 'bg-blue-500', xp: 25 },
+    mapping: { name: 'Mappa Concettuale', icon: <Brain className="w-5 h-5" />, color: 'bg-green-500', xp: 35 },
+    feynman: { name: 'Tecnica Feynman', icon: <Users className="w-5 h-5" />, color: 'bg-purple-500', xp: 50 },
+    recall: { name: 'Richiamo Attivo', icon: <Zap className="w-5 h-5" />, color: 'bg-orange-500', xp: 40 },
+    testing: { name: 'Testing Intensivo', icon: <Target className="w-5 h-5" />, color: 'bg-red-500', xp: 60 }
+  };
+
+  const getCurrentRank = (xp) => {
+    return ranks.filter(rank => xp >= rank.min).pop();
+  };
+
+  const completeGoal = (goalId) => {
+    setDailyGoals(goals => 
+      goals.map(goal => 
+        goal.id === goalId 
+          ? { ...goal, completed: true, progress: 100 }
+          : goal
+      )
+    );
+    setUserStats(stats => ({
+      ...stats,
+      xp: stats.xp + dailyGoals.find(g => g.id === goalId).xp
+    }));
+  };
+
+  const startStudySession = () => {
+    setStudySession(prev => ({ ...prev, isActive: true, timeLeft: 1500 })); // 25 min
+  };
+
+  const completePhase = () => {
+    const currentPhase = studySession.phase;
+    const phaseData = studyPhases[currentPhase];
+    
+    setUserStats(stats => ({
+      ...stats,
+      xp: stats.xp + phaseData.xp
+    }));
+
+    setStudySession(prev => ({
+      ...prev,
+      currentXP: prev.currentXP + phaseData.xp,
+      streak: prev.streak + 1
+    }));
+
+    // Move to next phase
+    const phases = Object.keys(studyPhases);
+    const currentIndex = phases.indexOf(currentPhase);
+    if (currentIndex < phases.length - 1) {
+      setStudySession(prev => ({
+        ...prev,
+        phase: phases[currentIndex + 1],
+        timeLeft: 900 // 15 min for next phase
+      }));
+    } else {
+      setStudySession(prev => ({ ...prev, isActive: false }));
+    }
+  };
+
+  const DashboardSection = () => (
+    <div className="space-y-6">
+      {/* User Stats Card */}
+      <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 text-white">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold">Livello {userStats.level}</h2>
+            <p className={`text-lg ${getCurrentRank(userStats.xp).color.replace('text-', 'text-')}`}>
+              {getCurrentRank(userStats.xp).name}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-3xl font-bold">{userStats.xp}</div>
+            <div className="text-sm opacity-80">XP totali</div>
+          </div>
+        </div>
+        
+        <div className="w-full bg-white/20 rounded-full h-3 mb-2">
+          <div 
+            className="bg-white rounded-full h-3 transition-all duration-500"
+            style={{ width: `${(userStats.xp / userStats.xpToNext) * 100}%` }}
+          ></div>
+        </div>
+        <div className="flex justify-between text-sm opacity-80">
+          <span>{userStats.xp} XP</span>
+          <span>{userStats.xpToNext} XP per livello successivo</span>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg p-4 text-center shadow-md">
+          <Flame className="w-8 h-8 text-orange-500 mx-auto mb-2" />
+          <div className="text-2xl font-bold text-orange-600">{userStats.streak}</div>
+          <div className="text-sm text-gray-600">Giorni di streak</div>
+        </div>
+        <div className="bg-white rounded-lg p-4 text-center shadow-md">
+          <Timer className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+          <div className="text-2xl font-bold text-blue-600">{userStats.totalStudyTime}h</div>
+          <div className="text-sm text-gray-600">Tempo totale</div>
+        </div>
+        <div className="bg-white rounded-lg p-4 text-center shadow-md">
+          <Trophy className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+          <div className="text-2xl font-bold text-yellow-600">{userStats.badges.length}</div>
+          <div className="text-sm text-gray-600">Badge ottenuti</div>
+        </div>
+        <div className="bg-white rounded-lg p-4 text-center shadow-md">
+          <TrendingUp className="w-8 h-8 text-green-500 mx-auto mb-2" />
+          <div className="text-2xl font-bold text-green-600">87%</div>
+          <div className="text-sm text-gray-600">Efficacia</div>
+        </div>
+      </div>
+
+      {/* Daily Goals */}
+      <div className="bg-white rounded-xl p-6 shadow-md">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Target className="w-6 h-6 text-blue-600" />
+          Obiettivi Giornalieri
+        </h3>
+        <div className="space-y-3">
+          {dailyGoals.map(goal => (
+            <div key={goal.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-medium">{goal.title}</span>
+                  {goal.completed ? (
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-gray-300" />
+                  )}
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className={`h-2 rounded-full transition-all duration-500 ${goal.completed ? 'bg-green-500' : 'bg-blue-500'}`}
+                    style={{ width: `${goal.progress}%` }}
+                  ></div>
+                </div>
+              </div>
+              <div className="ml-4 text-center">
+                <div className="text-sm font-bold text-blue-600">+{goal.xp} XP</div>
+                {!goal.completed && goal.progress < 100 && (
+                  <button 
+                    onClick={() => completeGoal(goal.id)}
+                    className="text-xs bg-blue-500 text-white px-2 py-1 rounded mt-1 hover:bg-blue-600"
+                  >
+                    Completa
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const StudySection = () => (
+    <div className="space-y-6">
+      {/* Current Topic */}
+      <div className="bg-white rounded-xl p-6 shadow-md">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <BookOpen className="w-6 h-6 text-purple-600" />
+          Argomento Attuale: {currentTopic.topic}
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-medium">Livello di Padronanza</span>
+                <span className="text-sm font-bold text-purple-600">{currentTopic.masteryLevel}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div 
+                  className="bg-purple-500 rounded-full h-3 transition-all duration-500"
+                  style={{ width: `${currentTopic.masteryLevel}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <span className="font-medium text-red-600">🔍 Algoritmo ha rilevato lacune in:</span>
+              <ul className="mt-2 space-y-1">
+                {currentTopic.weakPoints.map((point, index) => (
+                  <li key={index} className="text-sm bg-red-50 p-2 rounded flex items-center gap-2">
+                    <XCircle className="w-4 h-4 text-red-500" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <span className="font-medium text-green-600">✅ Punti di forza:</span>
+            <ul className="mt-2 space-y-1">
+              {currentTopic.strongPoints.map((point, index) => (
+                <li key={index} className="text-sm bg-green-50 p-2 rounded flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Study Session */}
+      <div className="bg-white rounded-xl p-6 shadow-md">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Zap className="w-6 h-6 text-orange-600" />
+          Sessione di Studio Guidata
+        </h3>
+
+        {!studySession.isActive ? (
+          <div className="text-center">
+            <div className="mb-4">
+              <p className="text-gray-600 mb-4">Pronto per una sessione di studio scientifica?</p>
+              <div className="grid grid-cols-5 gap-2 mb-4">
+                {Object.entries(studyPhases).map(([key, phase], index) => (
+                  <div key={key} className="text-center">
+                    <div className={`w-12 h-12 ${phase.color} rounded-full flex items-center justify-center text-white mx-auto mb-2`}>
+                      {phase.icon}
+                    </div>
+                    <div className="text-xs font-medium">{phase.name}</div>
+                    <div className="text-xs text-gray-500">+{phase.xp} XP</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <button 
+              onClick={startStudySession}
+              className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-lg font-bold text-lg hover:shadow-lg transition-all"
+            >
+              🚀 Inizia Sessione (25 min)
+            </button>
+          </div>
+        ) : (
+          <div className="text-center">
+            <div className="mb-6">
+              <div className={`w-20 h-20 ${studyPhases[studySession.phase].color} rounded-full flex items-center justify-center text-white mx-auto mb-4`}>
+                {studyPhases[studySession.phase].icon}
+              </div>
+              <h4 className="text-2xl font-bold mb-2">{studyPhases[studySession.phase].name}</h4>
+              <div className="text-3xl font-bold text-orange-600 mb-2">
+                {Math.floor(studySession.timeLeft / 60)}:{(studySession.timeLeft % 60).toString().padStart(2, '0')}
+              </div>
+              <div className="text-sm text-gray-600">XP questa sessione: {studySession.currentXP}</div>
+            </div>
+
+            <div className="bg-gray-100 p-4 rounded-lg mb-4">
+              <h5 className="font-bold mb-2">Istruzioni per questa fase:</h5>
+              {studySession.phase === 'scanning' && (
+                <p className="text-sm">Leggi rapidamente il capitolo evidenziando solo le keywords principali. Non soffermarti sui dettagli!</p>
+              )}
+              {studySession.phase === 'mapping' && (
+                <p className="text-sm">Crea una mappa concettuale collegando le keywords trovate. Usa colori e simboli!</p>
+              )}
+              {studySession.phase === 'feynman' && (
+                <p className="text-sm">Spiega l'argomento come se stessi parlando a un bambino di 12 anni. Registrati se vuoi!</p>
+              )}
+              {studySession.phase === 'recall' && (
+                <p className="text-sm">Chiudi tutto e scrivi quello che ricordi su un foglio bianco. Niente trucchi!</p>
+              )}
+              {studySession.phase === 'testing' && (
+                <p className="text-sm">Fai degli esercizi o crea delle domande per testare la tua comprensione!</p>
+              )}
+            </div>
+
+            <button 
+              onClick={completePhase}
+              className="bg-green-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-600 transition-all"
+            >
+              ✅ Fase Completata (+{studyPhases[studySession.phase].xp} XP)
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const AnalyticsSection = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-xl p-6 shadow-md">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <BarChart3 className="w-6 h-6 text-blue-600" />
+          Analisi Algoritmica delle Lacune
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-bold mb-3 text-red-600">🔍 Aree che necessitano focus:</h4>
+            <div className="space-y-3">
+              <div className="bg-red-50 p-3 rounded-lg">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-medium">Regola della catena</span>
+                  <span className="text-sm font-bold text-red-600">Critico</span>
+                </div>
+                <div className="text-sm text-gray-600 mb-2">Errori: 8/10 esercizi | Tempo medio: 12 min</div>
+                <div className="w-full bg-red-200 rounded-full h-2">
+                  <div className="bg-red-500 rounded-full h-2" style={{ width: '20%' }}></div>
+                </div>
+              </div>
+              
+              <div className="bg-orange-50 p-3 rounded-lg">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-medium">Derivate implicite</span>
+                  <span className="text-sm font-bold text-orange-600">Medio</span>
+                </div>
+                <div className="text-sm text-gray-600 mb-2">Errori: 4/10 esercizi | Tempo medio: 8 min</div>
+                <div className="w-full bg-orange-200 rounded-full h-2">
+                  <div className="bg-orange-500 rounded-full h-2" style={{ width: '60%' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-bold mb-3 text-green-600">✅ Punti di eccellenza:</h4>
+            <div className="space-y-3">
+              <div className="bg-green-50 p-3 rounded-lg">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="font-medium">Definizione di derivata</span>
+                  <span className="text-sm font-bold text-green-600">Mastery</span>
+                </div>
+                <div className="text-sm text-gray-600 mb-2">Errori: 0/10 esercizi | Tempo medio: 3 min</div>
+                <div className="w-full bg-green-200 rounded-full h-2">
+                  <div className="bg-green-500 rounded-full h-2" style={{ width: '95%' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          <h4 className="font-bold text-blue-800 mb-2">🤖 Raccomandazioni AI:</h4>
+          <ul className="space-y-1 text-sm">
+            <li>• Dedica 15 minuti extra alla regola della catena nei prossimi 3 giorni</li>
+            <li>• Prova la visualizzazione grafica per le derivate implicite</li>
+            <li>• Mantieni il ritmo attuale per le definizioni base</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-800">StudyMaster</h1>
+                <p className="text-sm text-gray-600">Il tuo coach di apprendimento AI</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-yellow-500" />
+                <span className="font-bold text-gray-800">{userStats.xp}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Flame className="w-5 h-5 text-orange-500" />
+                <span className="font-bold text-gray-800">{userStats.streak}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="bg-white border-b">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex space-x-8">
+            {[
+              { id: 'dashboard', name: 'Dashboard', icon: <BarChart3 className="w-5 h-5" /> },
+              { id: 'study', name: 'Studio Guidato', icon: <BookOpen className="w-5 h-5" /> },
+              { id: 'analytics', name: 'Analisi AI', icon: <Brain className="w-5 h-5" /> }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setCurrentSection(tab.id)}
+                className={`flex items-center gap-2 py-4 px-2 border-b-2 font-medium transition-colors ${
+                  currentSection === tab.id
+                    ? 'border-purple-600 text-purple-600'
+                    : 'border-transparent text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                {tab.icon}
+                {tab.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {currentSection === 'dashboard' && <DashboardSection />}
+        {currentSection === 'study' && <StudySection />}
+        {currentSection === 'analytics' && <AnalyticsSection />}
+      </div>
+    </div>
+  );
+};
+
+export default StudyMasterApp;
