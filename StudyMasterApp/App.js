@@ -12,6 +12,42 @@ import {
 } from './services/storageService';
 import { generateStudyContent } from './services/aiService';
 
+const analyzeErrors = (errorLogs) => {
+  const weakPoints = [];
+  const strongPoints = [];
+  const recommendations = [];
+
+  // Count error types
+  const errorCounts = errorLogs.reduce((acc, log) => {
+    acc[log.errorType] = (acc[log.errorType] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Analyze error patterns
+  Object.entries(errorCounts).forEach(([type, count]) => {
+    if (count >= 3) {
+      weakPoints.push(`Difficoltà ricorrenti con ${type}`);
+      recommendations.push(`Concentrati su esercizi specifici per ${type}`);
+    } else if (count === 1) {
+      strongPoints.push(`Buona comprensione generale di ${type}`);
+    }
+  });
+
+  // Add general recommendations
+  if (weakPoints.length > 0) {
+    recommendations.push('Considera di rivedere i concetti fondamentali');
+  }
+  if (strongPoints.length > 0) {
+    recommendations.push('Continua a rafforzare i punti di forza');
+  }
+
+  return {
+    weakPoints,
+    strongPoints,
+    recommendations: recommendations.slice(0, 3) // Limit to top 3 recommendations
+  };
+};
+
 const ranks = [
   { name: 'Knowledge Seeker', min: 0, color: '#6B7280' },
   { name: 'Info Gatherer', min: 500, color: '#22C55E' },
@@ -61,10 +97,10 @@ export default function App() {
   useEffect(() => {
     const loadData = async () => {
       const loadedCategories = await loadCategories();
-      setCategories(loadedCategories);
+      setCategories(loadedCategories || []);
 
       const loadedMaterials = await loadMaterials();
-      setMaterials(loadedMaterials);
+      setMaterials(loadedMaterials || []);
 
       const loadedUserStats = await loadUserStats();
       if (loadedUserStats) {
@@ -171,6 +207,7 @@ export default function App() {
           categories={categories}
           setCategories={setCategories}
           onSelectCategory={setSelectedCategory}
+          selectedCategory={selectedCategory}
         />
         <MaterialUploader
           selectedCategory={selectedCategory}
