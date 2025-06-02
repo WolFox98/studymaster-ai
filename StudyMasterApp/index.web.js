@@ -1,10 +1,11 @@
-import { AppRegistry } from 'react-native';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 
-const appName = 'StudyMasterApp';
+if (module.hot) {
+  module.hot.accept();
+}
 
-AppRegistry.registerComponent(appName, () => App);
-AppRegistry.runApplication(appName, {
-  initialProps: {},
-  rootTag: document.getElementById('app-root'),
-});
+const container = document.getElementById('app-root');
+const root = createRoot(container);
+root.render(<App />);
