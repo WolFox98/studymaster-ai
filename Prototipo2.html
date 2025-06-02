@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyMaster AI - Locale</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .status-bar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 25px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .status-online { background: #10b981; }
+        .status-offline { background: #ef4444; }
+        .status-processing { background: #f59e0b; }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        }
+
+        .upload-area.dragover {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 15px;
+            opacity: 0.7;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #10b981, #059669);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+        }
+
+        .subject-list {
+            display: grid;
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .subject-item {
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .subject-item:hover {
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+        }
+
+        .subject-info h4 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .subject-info p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.3s ease;
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .exercise-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .exercise-question {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .exercise-options {
+            display: grid;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .exercise-option {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .exercise-option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .exercise-option.selected {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .exercise-option.correct {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .exercise-option.incorrect {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧠 StudyMaster AI</h1>
+            <p>Il tuo assistente di studio locale con intelligenza artificiale</p>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-icon status-offline" id="aiStatus"></div>
+                <span id="aiStatusText">Ollama: Disconnesso</span>
+            </div>
+            <div class="status-item">
+                <strong>Materie Caricate: <span id="subjectCount">0</span></strong>
+            </div>
+            <div class="status-item">
+                <strong>PDF Processati: <span id="pdfCount">0</span></strong>
+            </div>
+        </div>
+
+        <!-- Alert Area -->
+        <div id="alertArea"></div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Upload Card -->
+            <div class="card">
+                <div class="card-header">
+                    <svg class="card-icon" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                    </svg>
+                    <h3 class="card-title">Carica Materiale</h3>
+                </div>
+
+                <div class="upload-area" id="uploadArea">
+                    <svg class="upload-icon" viewBox="0 0 24 24">
+                        <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" fill="currentColor"/>
+                    </svg>
+                    <h4>Trascina i PDF qui o clicca per selezionare</h4>
+                    <p>Supporta PDF fino a 50MB</p>
+                    <input type="file" id="pdfInput" accept=".pdf" multiple style="display: none;">
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <input type="text" id="subjectInput" placeholder="Nome materia (es. Matematica, Fisica...)" 
+                           style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; margin-bottom: 15px;">
+                    <button class="btn" id="processBtn" disabled>
+                        📚 Processa con AI
+                    </button>
+                </div>
+            </div>
+
+            <!-- Subjects Card -->
+            <div class="card">
+                <div class="card-header">
+                    <svg class="card-icon" viewBox="0 0 24 24">
+                        <path d="M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z" fill="currentColor"/>
+                    </svg>
+                    <h3 class="card-title">Le Tue Materie</h3>
+                </div>
+
+                <div class="subject-list" id="subjectList">
+                    <div style="text-align: center; color: #666; padding: 40px;">
+                        <p>Nessuna materia caricata ancora</p>
+                        <p style="font-size: 0.9em; margin-top: 5px;">Carica il primo PDF per iniziare!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="content-section" id="contentSection" style="display: none;">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="exercises">🎯 Esercizi</button>
+                <button class="tab-btn" data-tab="summary">📝 Riassunto</button>
+                <button class="tab-btn" data-tab="concepts">🧩 Concetti</button>
+                <button class="tab-btn" data-tab="questions">❓ Domande</button>
+            </div>
+
+            <div id="tabContent">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Carica una materia per vedere i contenuti generati dall'AI</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let subjects = JSON.parse(localStorage.getItem('studymaster_subjects') || '{}');
+        let currentSubject = null;
+        let isOllamaConnected = false;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            checkOllamaConnection();
+            updateUI();
+        });
+
+        function initializeApp() {
+            // Set PDF.js worker path
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            
+            console.log('StudyMaster AI inizializzato');
+            showAlert('StudyMaster AI avviato! Assicurati che Ollama sia in esecuzione per utilizzare l\'AI.', 'warning');
+        }
+
+        function setupEventListeners() {
+            const uploadArea = document.getElementById('uploadArea');
+            const pdfInput = document.getElementById('pdfInput');
+            const processBtn = document.getElementById('processBtn');
+            const subjectInput = document.getElementById('subjectInput');
+
+            // Upload area events
+            uploadArea.addEventListener('click', () => pdfInput.click());
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            uploadArea.addEventListener('drop', handleDrop);
+
+            // File input
+            pdfInput.addEventListener('change', handleFileSelect);
+
+            // Process button
+            processBtn.addEventListener('click', processFiles);
+
+            // Subject input
+            subjectInput.addEventListener('input', function() {
+                processBtn.disabled = !this.value.trim() || !pdfInput.files.length;
+            });
+
+            // Tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.dataset.tab;
+                    switchTab(tab);
+                });
+            });
+        }
+
+        async function checkOllamaConnection() {
+            try {
+                const response = await fetch('http://localhost:11434/api/tags');
+                if (response.ok) {
+                    isOllamaConnected = true;
+                    document.getElementById('aiStatus').className = 'status-icon status-online';
+                    document.getElementById('aiStatusText').textContent = 'Ollama: Connesso ✓';
+                } else {
+                    throw new Error('Ollama non risponde');
+                }
+            } catch (error) {
+                isOllamaConnected = false;
+                document.getElementById('aiStatus').className = 'status-icon status-offline';
+                document.getElementById('aiStatusText').textContent = 'Ollama: Disconnesso ✗';
+                
+                showAlert(`
+                    <strong>Ollama non trovato!</strong><br>
+                    Per utilizzare l'AI locale, installa Ollama:<br>
+                    1. Vai su <a href="https://ollama.com" target="_blank">ollama.com</a><br>
+                    2. Installa Ollama<br>
+                    3. Esegui: <code>ollama pull llama3.2</code><br>
+                    4. Avvia: <code>ollama serve</code>
+                `, 'error');
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+            
+            const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
+            if (files.length > 0) {
+                document.getElementById('pdfInput').files = createFileList(files);
+                updateProcessButton();
+            }
+        }
+
+        function handleFileSelect(e) {
+            updateProcessButton();
+        }
+
+        function updateProcessButton() {
+            const files = document.getElementById('pdfInput').files;
+            const subject = document.getElementById('subjectInput').value.trim();
+            document.getElementById('processBtn').disabled = !files.length || !subject;
+        }
+
+        function createFileList(files) {
+            const dt = new DataTransfer();
+            files.forEach(file => dt.items.add(file));
+            return dt.files;
+        }
+
+        async function processFiles() {
+            const files = document.getElementById('pdfInput').files;
+            const subjectName = document.getElementById('subjectInput').value.trim();
+            
+            if (!files.length || !subjectName) return;
+
+            document.getElementById('processBtn').disabled = true;
+            document.getElementById('processBtn').textContent = '🔄 Processando...';
+
+            try {
+                let allText = '';
+                
+                // Process each PDF
+                for (let file of files) {
+                    showAlert(`Processando: ${file.name}...`, 'warning');
+                    const text = await extractTextFromPDF(file);
+                    allText += `\n\n=== ${file.name} ===\n\n${text}`;
+                }
+
+                if (!allText.trim()) {
+                    throw new Error('Nessun testo estratto dai PDF');
+                }
+
+                // Generate AI content
+                let aiContent = null;
+                if (isOllamaConnected) {
+                    showAlert('Generando contenuti con AI...', 'warning');
+                    aiContent = await generateAIContent(allText, subjectName);
+                }
+
+                // Save subject
+                const subjectId = Date.now().toString();
+                subjects[subjectId] = {
+                    id: subjectId,
+                    name: subjectName,
+                    createdAt: new Date().toISOString(),
+                    pdfCount: files.length,
+                    rawText: allText,
+                    aiContent: aiContent,
+                    progress: aiContent ? 100 : 50
+                };
+
+                localStorage.setItem('studymaster_subjects', JSON.stringify(subjects));
+                
+                showAlert(`✅ Materia "${subjectName}" processata con successo!`, 'success');
+                
+                // Reset form
+                document.getElementById('pdfInput').value = '';
+                document.getElementById('subjectInput').value = '';
+                updateProcessButton();
+                updateUI();
+
+            } catch (error) {
+                console.error('Errore durante il processamento:', error);
+                showAlert(`❌ Errore: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('processBtn').disabled = false;
+                document.getElementById('processBtn').textContent = '📚 Processa con AI';
+            }
+        }
+
+        async function extractTextFromPDF(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+            
+            let fullText = '';
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += pageText + '\n';
+            }
+            
+            return fullText;
+        }
+
+        async function generateAIContent(text, subject) {
+            if (!isOllamaConnected) {
+                return {
+                    summary: 'AI non disponibile - Ollama disconnesso',
+                    concepts: [],
+                    exercises: [],
+                    questions: []
+                };
+            }
+
+            try {
+                const prompt = `
+Analizza questo materiale di studio per la materia "${subject}" e genera:
+
+1. RIASSUNTO: Un riassunto dettagliato ma conciso (max 500 parole)
+2. CONCETTI: Lista di 8-10 concetti chiave con spiegazioni brevi
+3. ESERCIZI: 5 esercizi pratici con 4 opzioni di risposta ciascuno (indica la risposta corretta)
+4. DOMANDE: 8-10 domande di comprensione per testare la conoscenza
+
+Formato richiesto JSON:
+{
+  "summary": "riassunto qui...",
+  "concepts": [{"name": "Concetto", "description": "Spiegazione"}],
+  "exercises": [{"question": "Domanda?", "options": ["A", "B", "C", "D"], "correct": 0, "explanation": "Spiegazione"}],
+  "questions": [{"question": "Domanda?", "type": "open"}]
+}
+
+MATERIALE:
+${text.substring(0, 8000)}...
+                `;
+
+                const response = await fetch('http://localhost:11434/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'llama3.2',
+                        prompt: prompt,
+                        stream: false
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Errore nella risposta di Ollama');
+                }
+
+                const data = await response.json();
+                
+                try {
+                    // Try to parse JSON from response
+                    const jsonMatch = data.response.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        return JSON.parse(jsonMatch[0]);
+                    }
+                } catch (parseError) {
+                    console.error('Errore parsing JSON:', parseError);
+                }
+
+                // Fallback to structured parsing
+                return parseAIResponse(data.response);
+
+            } catch (error) {
+                console.error('Errore generazione AI:', error);
+                throw new Error('Impossibile generare contenuti AI: ' + error.message);
+            }
+        }
+
+        function parseAIResponse(response) {
+            // Basic fallback parser
+            return {
+                summary: response.substring(0, 500) + '...',
+                concepts: [
+                    {name: 'Concetto Principale', description: 'Estratto dal materiale caricato'},
+                    {name: 'Argomento Secondario', description: 'Dettagli importanti dal testo'}
+                ],
+                exercises: [
+                    {
+                        question: 'Domanda di esempio basata sul materiale',
+                        options: ['Opzione A', 'Opzione B', 'Opzione C', 'Opzione D'],
+                        correct: 0,
+                        explanation: 'Spiegazione della risposta corretta'
+                    }
+                ],
+                questions: [
+                    {question: 'Spiega il concetto principale del materiale', type: 'open'},
+                    {question: 'Quali sono gli aspetti più importanti?', type: 'open'}
+                ]
+            };
+        }
+
+        function updateUI() {
+            updateSubjectCount();
+            renderSubjects();
+        }
+
+        function updateSubjectCount() {
+            const count = Object.keys(subjects).length;
+            const pdfCount = Object.values(subjects).reduce((sum, subject) => sum + subject.pdfCount, 0);
+            
+            document.getElementById('subjectCount').textContent = count;
+            document.getElementById('pdfCount').textContent = pdfCount;
+        }
+
+        function renderSubjects() {
+            const subjectList = document.getElementById('subjectList');
+            
+            if (Object.keys(subjects).length === 0) {
+                subjectList.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 40px;">
+                        <p>Nessuna materia caricata ancora</p>
+                        <p style="font-size: 0.9em; margin-top: 5px;">Carica il primo PDF per iniziare!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            subjectList.innerHTML = Object.values(subjects).map(subject => `
+                <div class="subject-item" onclick="loadSubject('${subject.id}')">
+                    <div class="subject-info">
+                        <h4>${subject.name}</h4>
+                        <p>${subject.pdfCount} PDF • ${new Date(subject.createdAt).toLocaleDateString()}</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${subject.progress}%"></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteSubject('${subject.id}', event)" style="padding: 8px 12px;">
+                        🗑️
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function loadSubject(subjectId) {
+            currentSubject = subjects[subjectId];
+            document.getElementById('contentSection').style.display = 'block';
+            switchTab('exercises');
+        }
+
+        function deleteSubject(subjectId, event) {
+            event.stopPropagation();
+            if (confirm('Sei sicuro di voler eliminare questa materia?')) {
+                delete subjects[subjectId];
+                localStorage.setItem('studymaster_subjects', JSON.stringify(subjects));
+                if (currentSubject && currentSubject.id === subjectId) {
+                    currentSubject = null;
+                    document.getElementById('contentSection').style.display = 'none';
+                }
+                updateUI();
+                showAlert('Materia eliminata', 'success');
+            }
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tabName);
+            });
+
+            if (!currentSubject) {
+                document.getElementById('tabContent').innerHTML = `
+                    <div class="loading">
+                        <p>Seleziona una materia per vedere i contenuti</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const content = currentSubject.aiContent;
+            if (!content) {
+                document.getElementById('tabContent').innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Contenuti AI non disponibili per questa materia</p>
