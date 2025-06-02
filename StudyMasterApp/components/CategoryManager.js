@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
-const CategoryManager = ({ categories, setCategories, onSelectCategory }) => {
+const CategoryManager = ({ categories, setCategories, onSelectCategory, selectedCategory }) => {
   const [newCategory, setNewCategory] = useState('');
 
   const addCategory = () => {
@@ -26,8 +26,19 @@ const CategoryManager = ({ categories, setCategories, onSelectCategory }) => {
         data={categories}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.categoryItem} onPress={() => onSelectCategory(item)}>
-            <Text style={styles.categoryText}>{item.name}</Text>
+          <TouchableOpacity 
+            style={[
+              styles.categoryItem,
+              selectedCategory?.id === item.id && styles.selectedCategory
+            ]} 
+            onPress={() => onSelectCategory(item)}
+          >
+            <Text style={[
+              styles.categoryText,
+              selectedCategory?.id === item.id && styles.selectedCategoryText
+            ]}>
+              {item.name}
+            </Text>
           </TouchableOpacity>
         )}
         ListEmptyComponent={<Text style={styles.emptyText}>Nessuna categoria creata</Text>}
@@ -67,9 +78,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderBottomColor: '#ddd',
     borderBottomWidth: 1,
+    borderRadius: 6,
+  },
+  selectedCategory: {
+    backgroundColor: '#E0E7FF',
+    borderBottomColor: '#6366F1',
   },
   categoryText: {
     fontSize: 16,
+  },
+  selectedCategoryText: {
+    color: '#4F46E5',
+    fontWeight: '600',
   },
   emptyText: {
     fontStyle: 'italic',
